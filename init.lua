@@ -21,7 +21,7 @@ return core.fennel_language_compiler.dofile
 
 Now you'd use it like this:
 
-local fennel_compile = require("fennel")
+local fennel_compile = require("fennel_compiler")
 
 fennel_compile("my_cool_file.fnl")
 
