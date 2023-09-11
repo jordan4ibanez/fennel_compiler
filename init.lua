@@ -7,7 +7,7 @@ local core = require "core"
 
 -- Load up fennel programming language. Into plugin table scope.
 if not core.fennel_language_compiler then
-  core.fennel_language_compiler = require("plugins.fennel.fennel").install()
+  core.fennel_language_compiler = require("plugins.fennel_compiler.fennel").install()
   -- Now we check it's working.
   core.fennel_language_compiler.dofile("main.fnl")
 else
