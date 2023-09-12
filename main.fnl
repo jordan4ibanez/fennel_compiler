@@ -1,1 +1,1 @@
-(print "Fennel language compiler loaded!")
+(print "Fennel compiler: Initialized!")
