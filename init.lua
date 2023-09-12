@@ -251,8 +251,8 @@ local function load_plugins()
         elseif config.plugins[plugin.name].onload then
           -- print(config.plugins[plugin.name])
           local success, err = core.try(config.plugins[plugin.name].onload, loaded_plugin)
-          if not success then error(err) end
           print(err)
+          if not success then error(err) end
         end
       end
     end
