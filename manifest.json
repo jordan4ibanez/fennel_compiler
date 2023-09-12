@@ -4,11 +4,8 @@
                   "id": "fennel_compiler",
                   "version": "1.0",
                   "description": "Allows you to make Lite XL plugins in Fennel.",
-                  "path": "plugins/fennel_compiler",
+                  "path": "init.lua",
                   "mod_version": 3
             }
       ],
-      "remotes": [
-            "https://github.com/jordan4ibanez/fennel_compiler.git:master"
-      ]
 }

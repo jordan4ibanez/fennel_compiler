@@ -12,7 +12,20 @@ Thanks, Adam!
 
 ]]--
 
+-- Only load up once!
+local core = require "core"
+
+if core.global_fennel_context then
+  print("Fennel Compiler: Global fennel context already exists, skipping init.")
+  -- This just becomes a jump table in cpu instructions and gives the same thing you can pull out of thin air.
+  -- Spooky.
+  return core.global_fennel_context
+end
+
+
 local status, fennel = pcall(require, "plugins.fennel_compiler.fennel")
+
+core.global_fennel_context = fennel
 
 local compile = fennel.dofile
 
@@ -206,7 +219,6 @@ local function load_plugins()
   end)
 
   local config = require "core.config"
-  local core = require "core"
 
 
   local load_start = system.get_time()
@@ -246,6 +258,7 @@ local function load_plugins()
         end
         if not ok then
           -- Hook the fennel compiler straight into the error log.
+          print(loaded_plugin)
           error(loaded_plugin)
           no_errors = false
         elseif config.plugins[plugin.name].onload then
@@ -266,4 +279,4 @@ end
 
 load_plugins()
 
-return fennel
+return core.global_fennel_context
