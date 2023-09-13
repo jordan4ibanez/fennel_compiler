@@ -133,10 +133,12 @@ require("plugins.fennel_compiler.main")
 
 -- And this is a monstrous hack to load all fennel files automatically.
 
+local mod_version_regex =
+  regex.compile([[;;.*mod-version:(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:$|\s)]])
 local function get_plugin_details(filename)
   local info = system.get_file_info(filename)
   if info ~= nil and info.type == "dir" then
-    filename = filename .. "/init.fnl"
+    filename = filename .. PATHSEP .. "init.fnl"
     info = system.get_file_info(filename)
   end
   if not info or not filename:match("%.fnl$") then return false end
@@ -144,19 +146,32 @@ local function get_plugin_details(filename)
   if not f then return false end
   local priority = false
   local version_match = false
-  local gotten_version = 0
+  local major, minor, patch
+
   for line in f:lines() do
     if not version_match then
-      local mod_version = line:match('%;%;.*%f[%a]mod%-version%s*:%s*(%d+)')
-      if mod_version then
-        version_match = (mod_version == MOD_VERSION)
-        gotten_version = mod_version
+      local _major, _minor, _patch = mod_version_regex:match(line)
+      if _major then
+        _major = tonumber(_major) or 0
+        _minor = tonumber(_minor) or 0
+        _patch = tonumber(_patch) or 0
+        major, minor, patch = _major, _minor, _patch
+
+        version_match = major == MOD_VERSION_MAJOR
+        if version_match then
+          version_match = minor <= MOD_VERSION_MINOR
+        end
+        if version_match then
+          version_match = patch <= MOD_VERSION_PATCH
+        end
       end
     end
+
     if not priority then
       priority = line:match('%;%;.*%f[%a]priority%s*:%s*(%d+)')
       if priority then priority = tonumber(priority) end
     end
+
     if version_match then
       break
     end
@@ -164,8 +179,8 @@ local function get_plugin_details(filename)
   f:close()
   return true, {
     version_match = version_match,
-    priority = priority or 100,
-    version = {gotten_version}
+    version = major and {major, minor, patch} or {},
+    priority = priority or 100
   }
 end
 
@@ -245,7 +260,7 @@ local function load_plugins()
         
         if ok then
           local plugin_version = ""
-          if plugin.version_string ~= MOD_VERSION then
+          if plugin.version_string ~= MOD_VERSION_STRING then
             plugin_version = "["..plugin.version_string.."]"
           end
           core.log_quiet(
